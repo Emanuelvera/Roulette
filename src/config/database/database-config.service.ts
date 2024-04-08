@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { User } from 'src/modules/users/user.entity';
 
 @Injectable()
 export class DatabaseConfigService implements TypeOrmOptionsFactory {
@@ -11,7 +12,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
       username: process.env.PGUSER,
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [User],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,
