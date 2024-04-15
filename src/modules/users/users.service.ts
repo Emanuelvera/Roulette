@@ -8,6 +8,7 @@ import { Repository, FindOneOptions } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create.user.dto';
 import { validate } from 'class-validator';
+import { HTTP_STATUS_MESSAGES } from 'src/shared/constants';
 
 @Injectable()
 export class UsersService {
@@ -16,20 +17,31 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const errors = await validate(createUserDto);
-    if (errors.length > 0) {
-      throw new BadRequestException('Validation failed');
+  async createUser(createUserDto: CreateUserDto): Promise<User | string> {
+    try {
+      const errors = await validate(createUserDto);
+      if (errors.length > 0) {
+        throw new BadRequestException('Validation failed');
+      }
+      const existingUser = await this.usersRepository.findOne({
+        where: { email: createUserDto.email },
+      });
+      if (existingUser) {
+        throw new ConflictException(HTTP_STATUS_MESSAGES.DUPLICATED_EMAIL);
+      }
+      const newUser = this.usersRepository.create(createUserDto);
+      await this.usersRepository.save(newUser);
+      return HTTP_STATUS_MESSAGES.USER_CREATED_SUCCESS;
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+
+      throw new Error(HTTP_STATUS_MESSAGES.ERROR_UNKNOWN);
     }
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
-    }
-    const newUser = this.usersRepository.create(createUserDto);
-    const user = await this.usersRepository.save(newUser);
-    return user;
   }
 
   async findAll(): Promise<User[]> {
@@ -44,10 +56,7 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
-    const options: FindOneOptions<User> = {
-      where: { email },
-    };
-    return this.usersRepository.findOne(options);
+    return await this.usersRepository.findOneBy({ email });
   }
 
   async remove(id: number): Promise<void> {
