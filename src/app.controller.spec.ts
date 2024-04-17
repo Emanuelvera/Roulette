@@ -1,22 +1,36 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Test } from '@nestjs/testing';
+import { UsersController } from './modules/users/users.controller';
+import { UsersService } from './modules/users/users.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('UsersController', () => {
+  let usersController: UsersController;
+  let usersService: UsersService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+    const moduleRef = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [UsersService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    usersController = moduleRef.get<UsersController>(UsersController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('findAll', () => {
+    it('should return an array of users', async () => {
+      const result = [
+        {
+          id: 1,
+          username: 'test',
+          email: 'test@example.com',
+          password: 'password',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastLogin: null,
+        },
+      ];
+      jest.spyOn(usersService, 'findAll').mockResolvedValue(result);
+      expect(await usersController.findAll()).toBe(result);
     });
   });
 });
