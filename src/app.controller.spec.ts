@@ -1,52 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './modules/users/users.controller';
-import { UsersService } from './modules/users/users.service';
-import { CreateUserDto } from './modules/users/create.user.dto';
-import { User } from './modules/users/user.entity';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
-describe('UsersController', () => {
-  let controller: UsersController;
-  let service: UsersService;
+describe('AppController', () => {
+  let appController: AppController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: {
-            findAll: jest.fn(() => []),
-          },
-        },
-      ],
+    const app: TestingModule = await Test.createTestingModule({
+      controllers: [AppController],
+      providers: [AppService],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
+    appController = app.get<AppController>(AppController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('findAll', () => {
-    it('should return an array of users', async () => {
-      const users = await controller.findAll();
-      expect(users).toEqual([]);
-    });
-  });
-
-  describe('createUser', () => {
-    it('should return a user', async () => {
-      // Crea un objeto userDto con las propiedades necesarias
-      const userDto: CreateUserDto = {
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password123',
-      };
-      const userObject = userDto as User;
-      expect(userObject.email).toEqual('test@example.com');
-      expect(userObject.username).toEqual('testuser');
+  describe('root', () => {
+    it('should return "Hello World!"', () => {
+      expect(appController.getHello()).toBe('Hello World!');
     });
   });
 });
