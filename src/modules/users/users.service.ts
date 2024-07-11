@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository /*, FindOneOptions */ } from 'typeorm';
@@ -59,7 +60,13 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ email });
   }*/
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async deleteUser(id: number): Promise<void> {
+    const result = await this.usersRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        HTTP_STATUS_MESSAGES.USER_NOT_FOUND,
+        `Id ${id} is incorrect or does not exist`,
+      );
+    }
   }
 }
