@@ -14,6 +14,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ type: 'bool', default: false })
+  account_activated: boolean;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

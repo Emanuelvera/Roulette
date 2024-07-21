@@ -10,12 +10,13 @@ import { User } from './user.entity';
 import { CreateUserDto } from './create.user.dto';
 import { validate } from 'class-validator';
 import { HTTP_STATUS_MESSAGES } from 'src/shared/constants';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
+    private readonly emailService: EmailService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User | string> {
@@ -32,6 +33,8 @@ export class UsersService {
       }
       const newUser = this.usersRepository.create(createUserDto);
       await this.usersRepository.save(newUser);
+      await this.emailService.sendVerificationEmail(newUser);
+
       return HTTP_STATUS_MESSAGES.USER_CREATED_SUCCESS;
     } catch (error) {
       if (
