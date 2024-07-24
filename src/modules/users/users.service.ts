@@ -53,9 +53,15 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User | null> {
-    const options: FindOneOptions<User> = {
-      where: { id },
-    };
+    const options: FindOneOptions<User> = { where: { id } };
+    const user = await this.usersRepository.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException(
+        HTTP_STATUS_MESSAGES.USER_NOT_FOUND,
+        `Id ${id} is incorrect or does not exist`,
+      );
+    }
     return this.usersRepository.findOne(options);
   }
 
@@ -63,7 +69,7 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ email });
   }*/
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number): Promise<string> {
     const result = await this.usersRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(
@@ -71,5 +77,6 @@ export class UsersService {
         `Id ${id} is incorrect or does not exist`,
       );
     }
+    return HTTP_STATUS_MESSAGES.USER_REMOVE_SUCCESS;
   }
 }
