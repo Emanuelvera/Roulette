@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository /*, FindOneOptions */ } from 'typeorm';
+import { FindOneOptions, Repository /*, FindOneOptions */ } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create.user.dto';
 import { validate } from 'class-validator';
@@ -52,18 +52,24 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  /* async findOne(id: number): Promise<User | null> {
-    const options: FindOneOptions<User> = {
-      where: { id },
-    };
+  async findOne(id: number): Promise<User | null> {
+    const options: FindOneOptions<User> = { where: { id } };
+    const user = await this.usersRepository.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException(
+        HTTP_STATUS_MESSAGES.USER_NOT_FOUND,
+        `Id ${id} is incorrect or does not exist`,
+      );
+    }
     return this.usersRepository.findOne(options);
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  /*async findOneByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOneBy({ email });
   }*/
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number): Promise<string> {
     const result = await this.usersRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(
@@ -71,5 +77,6 @@ export class UsersService {
         `Id ${id} is incorrect or does not exist`,
       );
     }
+    return HTTP_STATUS_MESSAGES.USER_REMOVE_SUCCESS;
   }
 }
