@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository /*, FindOneOptions */ } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create.user.dto';
 import { validate } from 'class-validator';
@@ -52,17 +52,22 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async findOne(id: number): Promise<User | null> {
-    const options: FindOneOptions<User> = { where: { id } };
-    const user = await this.usersRepository.findOne(options);
+  async findOne(identifier: number | string): Promise<User | null> {
+    const whereCondition =
+      typeof identifier === 'number'
+        ? { id: identifier }
+        : { username: identifier };
+
+    const user = await this.usersRepository.findOne({ where: whereCondition });
 
     if (!user) {
       throw new NotFoundException(
         HTTP_STATUS_MESSAGES.USER_NOT_FOUND,
-        `Id ${id} is incorrect or does not exist`,
+        `User with identifier ${identifier} is incorrect or does not exist`,
       );
     }
-    return this.usersRepository.findOne(options);
+
+    return user;
   }
 
   /*async findOneByEmail(email: string): Promise<User | null> {

@@ -6,3 +6,7 @@ export const HTTP_STATUS_MESSAGES = {
   ERROR_UNKNOWN: 'Internal Server Error',
   USER_NOT_FOUND: 'User not found',
 };
+
+export const jwtConstants = {
+  secret: 'admin',
+};
