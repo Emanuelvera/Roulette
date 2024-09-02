@@ -11,3 +11,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class EditUserDto {
+  @IsNotEmpty()
+  username: string;
+}
