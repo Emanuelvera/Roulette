@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { CreateUserDto } from './create.user.dto';
+import { CreateUserDto, EditUserDto } from './create.user.dto';
 import { validate } from 'class-validator';
 import { HTTP_STATUS_MESSAGES } from 'src/shared/constants';
 import { EmailService } from 'src/email/email.service';
@@ -44,7 +44,7 @@ export class UsersService {
         throw error;
       }
 
-      throw new Error(HTTP_STATUS_MESSAGES.ERROR_UNKNOWN);
+      throw new BadRequestException(HTTP_STATUS_MESSAGES.ERROR_UNKNOWN);
     }
   }
 
@@ -73,6 +73,19 @@ export class UsersService {
   /*async findOneByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOneBy({ email });
   }*/
+
+  async editUser(id: number, EditUserDto: EditUserDto) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(
+        HTTP_STATUS_MESSAGES.USER_NOT_FOUND,
+        `Id ${id} is incorrect or does not exist`,
+      );
+    }
+    await this.usersRepository.update({ id }, EditUserDto);
+
+    return 'usuario modificado correctamente';
+  }
 
   async deleteUser(id: number): Promise<string> {
     const result = await this.usersRepository.delete(id);
