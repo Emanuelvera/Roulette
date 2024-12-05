@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { EmailModule } from './email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     EmailModule,
     ConfigModule.forRoot(),
     AuthModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
